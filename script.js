@@ -1,12 +1,9 @@
-// === Данные ===
-let projects = JSON.parse(localStorage.getItem('codehub-projects')) || [];
+let projects = JSON.parse(localStorage.getItem('mycoder-projects')) || [];
 let currentProject = null;
 let currentFile = null;
 let openTabs = [];
-const assistantPanel = document.getElementById('assistant-panel');
 let assistantVisible = true;
 
-// === DOM ===
 const projectList = document.getElementById('projects');
 const fileList = document.getElementById('files');
 const tabsContainer = document.getElementById('tabs');
@@ -14,13 +11,11 @@ const editor = document.getElementById('editor');
 const assistantMessages = document.getElementById('assistant-messages');
 const assistantQuery = document.getElementById('assistant-query');
 
-// === Модалки ===
 const projectModal = document.getElementById('project-modal');
 const fileModal = document.getElementById('file-modal');
 const projectNameInput = document.getElementById('project-name');
 const fileNameInput = document.getElementById('file-name');
 
-// === Инициализация ===
 function init() {
   renderProjects();
   if (projects.length > 0) {
@@ -28,39 +23,35 @@ function init() {
   }
 }
 
-// === Рендер проектов ===
 function renderProjects() {
   projectList.innerHTML = '';
   projects.forEach(p => {
     const div = document.createElement('div');
-    div.className = `project-item ${currentProject && currentProject.id === p.id ? 'active' : ''}`;
+    div.className = `project-item ${currentProject?.id === p.id ? 'active' : ''}`;
     div.textContent = p.name;
     div.onclick = () => openProject(p.id);
     projectList.appendChild(div);
   });
 }
 
-// === Открыть проект ===
 function openProject(id) {
   currentProject = projects.find(p => p.id === id);
   renderFiles();
   renderTabs();
 }
 
-// === Рендер файлов ===
 function renderFiles() {
   fileList.innerHTML = '';
   if (!currentProject) return;
   currentProject.files.forEach(f => {
     const div = document.createElement('div');
-    div.className = `file-item ${currentFile && currentFile.id === f.id ? 'active' : ''}`;
+    div.className = `file-item ${currentFile?.id === f.id ? 'active' : ''}`;
     div.textContent = f.name;
     div.onclick = () => openFile(f.id);
     fileList.appendChild(div);
   });
 }
 
-// === Открыть файл ===
 function openFile(id) {
   if (!currentProject) return;
   const file = currentProject.files.find(f => f.id === id);
@@ -76,23 +67,21 @@ function openFile(id) {
   renderFiles();
 }
 
-// === Рендер вкладок ===
 function renderTabs() {
   tabsContainer.innerHTML = '';
   openTabs.forEach(tab => {
     const div = document.createElement('div');
-    div.className = `tab ${currentFile && currentFile.id === tab.id ? 'active' : ''}`;
-    div.innerHTML = `${tab.name} <span class="close" onclick="closeTab('${tab.id}');event.stopPropagation()">✕</span>`;
+    div.className = `tab ${currentFile?.id === tab.id ? 'active' : ''}`;
+    div.innerHTML = `${tab.name} <span class="close" onclick="closeTab('${tab.id}')">✕</span>`;
     div.onclick = () => setActiveTab(tab.id);
     tabsContainer.appendChild(div);
   });
 }
 
-// === Установить активную вкладку ===
 function setActiveTab(id) {
   const tab = openTabs.find(t => t.id === id);
   if (!tab) return;
-  const file = currentProject.files.find(f => f.id === id);
+  const file = currentProject?.files.find(f => f.id === id);
   if (file) {
     currentFile = file;
     editor.value = file.content || '';
@@ -101,10 +90,9 @@ function setActiveTab(id) {
   }
 }
 
-// === Закрыть вкладку ===
 function closeTab(id) {
   openTabs = openTabs.filter(t => t.id !== id);
-  if (currentFile && currentFile.id === id) {
+  if (currentFile?.id === id) {
     if (openTabs.length > 0) {
       setActiveTab(openTabs[openTabs.length - 1].id);
     } else {
@@ -115,7 +103,6 @@ function closeTab(id) {
   renderTabs();
 }
 
-// === Сохранение при вводе ===
 editor.addEventListener('input', () => {
   if (currentFile) {
     currentFile.content = editor.value;
@@ -123,12 +110,12 @@ editor.addEventListener('input', () => {
   }
 });
 
-// === Сохранение в localStorage ===
 function saveToStorage() {
-  localStorage.setItem('codehub-projects', JSON.stringify(projects));
+  localStorage.setItem('mycoder-projects', JSON.stringify(projects));
 }
 
-// === Модалки ===
+// --- Модалки ---
+
 document.getElementById('add-project').onclick = () => {
   projectModal.classList.remove('hidden');
   projectNameInput.value = '';
@@ -156,7 +143,7 @@ document.getElementById('save-project').onclick = () => {
 
 document.getElementById('new-file-btn').onclick = () => {
   if (!currentProject) {
-    alert('Сначала создайте проект!');
+    alert('Создайте сначала проект!');
     return;
   }
   fileModal.classList.remove('hidden');
@@ -183,20 +170,17 @@ document.getElementById('save-file').onclick = () => {
   }
 };
 
-// === Помощник по коду ===
+// --- Помощник по коду ---
+
 document.getElementById('send-query').onclick = () => {
   const query = assistantQuery.value.trim();
   if (!query) return;
 
-  // Показать вопрос
   addMessage('user', query);
   assistantQuery.value = '';
 
-  // Ответ
   const response = getAssistantResponse(query);
-  setTimeout(() => {
-    addMessage('bot', response);
-  }, 500);
+  setTimeout(() => addMessage('bot', response), 600);
 };
 
 function addMessage(sender, text) {
@@ -208,29 +192,32 @@ function addMessage(sender, text) {
 
 function getAssistantResponse(query) {
   query = query.toLowerCase();
-  if (query.includes('массив') && query.includes('js')) {
-    return 'В JavaScript массив создается так: `let arr = [1, 2, 3];` или `let arr = new Array(1, 2, 3);`';
-  } else if (query.includes('цикл') && query.includes('js')) {
-    return 'Пример цикла: `for (let i = 0; i < 10; i++) { console.log(i); }`';
-  } else if (query.includes('функция') && query.includes('js')) {
-    return 'Функция в JS: `function myFunc() { return "Hello"; }` или стрелочная: `const myFunc = () => "Hello";`';
-  } else if (query.includes('html') && query.includes('тег')) {
-    return 'Пример HTML: `<div><p>Текст</p></div>` — `div` и `p` — это теги.';
-  } else if (query.includes('css') && query.includes('стиль')) {
-    return 'CSS: `p { color: red; font-size: 14px; }` — задаёт цвет и размер текста.';
-  } else if (query.includes('пока') || query.includes('спасибо')) {
-    return 'Обращайся! Я всегда здесь, чтобы помочь с кодом.';
+  if (query.includes('массив') && query.includes('python')) {
+    return 'В Python: `arr = [1, 2, 3]` или `arr = list(range(5))`';
+  } else if (query.includes('цикл') && query.includes('python')) {
+    return 'Цикл: `for i in range(10): print(i)` или `while x > 0: ...`';
+  } else if (query.includes('функция') && query.includes('python')) {
+    return 'Функция: `def my_func(x): return x * 2`';
+  } else if (query.includes('класс') && query.includes('c++')) {
+    return 'Класс в C++:\n```cpp\nclass MyClass {\npublic:\n    int x;\n    MyClass(int val) { x = val; }\n};\n```';
+  } else if (query.includes('html') && query.includes('форма')) {
+    return 'Форма: `<form action="/submit"><input type="text" name="name"/><button>Отправить</button></form>`';
+  } else if (query.includes('css') && query.includes('анимация')) {
+    return 'Анимация:\n```css\n@keyframes move {\n  0% { transform: translateX(0); }\n  100% { transform: translateX(100px); }\n}\n```';
+  } else if (query.includes('js') && query.includes('объект')) {
+    return 'Объект в JS: `let obj = { name: "Alex", age: 25 };`';
   } else {
-    return 'Я не совсем понял вопрос. Попробуй уточнить, например: "Как создать функцию в JS?"';
+    return 'Не понял. Попробуй: "цикл в Python", "класс в C++", "анимация в CSS"';
   }
 }
 
-// Переключение видимости помощника
+// --- Показать/скрыть помощника ---
+
 document.getElementById('assistant-toggle').onclick = () => {
   assistantVisible = !assistantVisible;
-  assistantPanel.style.display = assistantVisible ? 'flex' : 'none';
+  document.getElementById('assistant-panel').style.display = assistantVisible ? 'flex' : 'none';
   document.getElementById('assistant-toggle').textContent = assistantVisible ? 'Скрыть' : 'Показать';
 };
 
-// === Запуск ===
+// --- Запуск ---
 init();
