@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CodeHub — Локальный GitHub</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Хедер -->
+  <header>
+    <h1>CodeHub</h1>
+    <nav>
+      <ul>
+        <li><a href="#" id="new-project-btn">New Project</a></li>
+        <li><a href="#" id="new-file-btn">New File</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Основной контент -->
+  <main>
+    <!-- Сайдбар -->
+    <div class="sidebar">
+      <div class="project-list">
+        <div class="project-header">
+          <h3>Проекты</h3>
+          <button id="add-project">+</button>
+        </div>
+        <div id="projects"></div>
+      </div>
+      <div class="file-list">
+        <h4>Файлы</h4>
+        <div id="files"></div>
+      </div>
+    </div>
+
+    <!-- Редактор -->
+    <div class="editor-container">
+      <div class="tab-bar" id="tabs"></div>
+      <textarea id="editor" placeholder="Пишите код здесь..."></textarea>
+
+      <!-- Панель помощника -->
+      <div class="assistant-panel" id="assistant-panel">
+        <div class="assistant-header">
+          <h4>🤖 CodeHelper</h4>
+          <button id="assistant-toggle">Скрыть</button>
+        </div>
+        <div id="assistant-messages">
+          <p><strong>CodeHelper:</strong> Привет! Я могу помочь с кодом. Спроси, например: "Как создать массив в JS?"</p>
+        </div>
+        <div id="assistant-input">
+          <input type="text" id="assistant-query" placeholder="Задайте вопрос по коду..." />
+          <button id="send-query">Отправить</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Модальные окна -->
+  <div id="project-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Новый проект</h3>
+      <input type="text" id="project-name" placeholder="Имя проекта" />
+      <button id="save-project">Создать</button>
+      <button id="cancel-project">Отмена</button>
+    </div>
+  </div>
+
+  <div id="file-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Новый файл</h3>
+      <input type="text" id="file-name" placeholder="Имя файла (например: main.js)" />
+      <button id="save-file">Создать</button>
+      <button id="cancel-file">Отмена</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
